@@ -20,6 +20,7 @@ export default function ExplorerPanel({ onVideoSelect, onVideoDeselect, selected
   const [loading, setLoading] = useState(false)
   const [sortKey, setSortKey] = useState<SortKey>(() => loadState('sortKey', 'name'))
   const [sortOrder, setSortOrder] = useState<SortOrder>(() => loadState('sortOrder', 'asc'))
+  const [searchQuery, setSearchQuery] = useState('')
   const [renamingPath, setRenamingPath] = useState<string | null>(null)
   const [renameValue, setRenameValue] = useState('')
   const renameInputRef = useRef<HTMLInputElement>(null)
@@ -154,6 +155,10 @@ export default function ExplorerPanel({ onVideoSelect, onVideoDeselect, selected
     return sortOrder === 'asc' ? cmp : -cmp
   })
 
+  const filtered = searchQuery.trim()
+    ? sorted.filter(v => v.name.toLowerCase().includes(searchQuery.trim().toLowerCase()))
+    : sorted
+
   const toggleSort = (key: SortKey) => {
     if (sortKey === key) {
       setSortOrder(o => o === 'asc' ? 'desc' : 'asc')
@@ -212,24 +217,50 @@ export default function ExplorerPanel({ onVideoSelect, onVideoDeselect, selected
 
       {videos.length > 0 && (
         <div className="sort-bar">
-          <button
-            className={`sort-btn ${sortKey === 'name' ? 'active' : ''}`}
-            onClick={() => toggleSort('name')}
-          >
-            이름 {sortIcon('name')}
-          </button>
-          <button
-            className={`sort-btn ${sortKey === 'date' ? 'active' : ''}`}
-            onClick={() => toggleSort('date')}
-          >
-            날짜 {sortIcon('date')}
-          </button>
-          <button
-            className={`sort-btn ${sortKey === 'duration' ? 'active' : ''}`}
-            onClick={() => toggleSort('duration')}
-          >
-            길이 {sortIcon('duration')}
-          </button>
+          <div className="search-box">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" className="search-icon">
+              <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2"/>
+              <path d="M20 20l-3.5-3.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+            </svg>
+            <input
+              className="search-input"
+              type="text"
+              placeholder="검색..."
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+            />
+            {searchQuery && (
+              <button
+                className="search-clear"
+                onClick={() => setSearchQuery('')}
+                title="지우기"
+              >
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none">
+                  <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
+                </svg>
+              </button>
+            )}
+          </div>
+          <div className="sort-buttons">
+            <button
+              className={`sort-btn ${sortKey === 'name' ? 'active' : ''}`}
+              onClick={() => toggleSort('name')}
+            >
+              이름 {sortIcon('name')}
+            </button>
+            <button
+              className={`sort-btn ${sortKey === 'date' ? 'active' : ''}`}
+              onClick={() => toggleSort('date')}
+            >
+              날짜 {sortIcon('date')}
+            </button>
+            <button
+              className={`sort-btn ${sortKey === 'duration' ? 'active' : ''}`}
+              onClick={() => toggleSort('duration')}
+            >
+              길이 {sortIcon('duration')}
+            </button>
+          </div>
         </div>
       )}
 
@@ -252,7 +283,17 @@ export default function ExplorerPanel({ onVideoSelect, onVideoDeselect, selected
           </div>
         )}
 
-        {sorted.map(video => {
+        {folderPath && videos.length > 0 && filtered.length === 0 && !loading && (
+          <div className="empty-state">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+              <circle cx="11" cy="11" r="7" stroke="var(--text-muted)" strokeWidth="1.5"/>
+              <path d="M20 20l-3.5-3.5" stroke="var(--text-muted)" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+            <p>검색 결과가 없습니다</p>
+          </div>
+        )}
+
+        {filtered.map(video => {
           const isRenaming = renamingPath === video.path
           const isSelected = selectedVideo?.path === video.path
 
