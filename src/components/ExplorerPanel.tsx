@@ -12,9 +12,10 @@ interface Props {
   collapsed?: boolean
   onToggleCollapse?: () => void
   style?: React.CSSProperties
+  refreshTrigger?: number
 }
 
-export default function ExplorerPanel({ onVideoSelect, onVideoDeselect, selectedVideo, collapsed, onToggleCollapse, style }: Props) {
+export default function ExplorerPanel({ onVideoSelect, onVideoDeselect, selectedVideo, collapsed, onToggleCollapse, style, refreshTrigger }: Props) {
   const [folderPath, setFolderPath] = useState<string>(() => loadState('folderPath', ''))
   const [videos, setVideos] = useState<VideoFile[]>([])
   const [loading, setLoading] = useState(false)
@@ -85,6 +86,13 @@ export default function ExplorerPanel({ onVideoSelect, onVideoDeselect, selected
   useEffect(() => {
     return () => { loadingRef.current = false }
   }, [])
+
+  // Re-scan folder when an export job completes (refreshTrigger increments)
+  const skipFirstTrigger = useRef(true)
+  useEffect(() => {
+    if (skipFirstTrigger.current) { skipFirstTrigger.current = false; return }
+    if (folderPath) loadFolder(folderPath)
+  }, [refreshTrigger]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSelectFolder = useCallback(async () => {
     const path = await selectFolder()

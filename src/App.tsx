@@ -36,7 +36,10 @@ export default function App() {
   // Track dragging state for cursor styling on body
   const draggingRef = useRef(false)
 
-  const { jobs, addJob, removeJob, clearCompletedJobs } = useJobQueue()
+  const [refreshCounter, setRefreshCounter] = useState(0)
+  const { jobs, addJob, removeJob, clearCompletedJobs } = useJobQueue(
+    useCallback(() => setRefreshCounter(n => n + 1), [])
+  )
 
   useEffect(() => { saveState('exportConfig', exportConfig) }, [exportConfig])
   useEffect(() => { saveState('leftWidth', leftWidth) }, [leftWidth])
@@ -130,6 +133,7 @@ export default function App() {
           onVideoSelect={handleVideoSelect}
           onVideoDeselect={handleVideoDeselect}
           selectedVideo={selectedVideo}
+          refreshTrigger={refreshCounter}
         />
         <div
           className={`resize-handle${leftCollapsed ? ' resize-handle--disabled' : ''}`}

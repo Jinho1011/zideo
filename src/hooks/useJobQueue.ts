@@ -4,7 +4,7 @@ import { exportCut, onExportProgress } from '../services/ipcClient'
 
 type JobPayload = Pick<ExportJob, 'fileName' | 'inputPath' | 'outputPath' | 'startTime' | 'endTime' | 'reencode'>
 
-export function useJobQueue() {
+export function useJobQueue(onJobDone?: () => void) {
   const [jobs, setJobs] = useState<ExportJob[]>([])
   const pendingJobsRef = useRef<ExportJob[]>([])
   const processingRef = useRef(false)
@@ -58,6 +58,7 @@ export function useJobQueue() {
               : j
             )
           )
+          if (result.success) onJobDone?.()
         } catch (err) {
           setJobs(prev =>
             prev.map(j => j.id === job.id
