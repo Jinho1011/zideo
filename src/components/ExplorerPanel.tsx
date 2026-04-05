@@ -7,10 +7,14 @@ import './ExplorerPanel.css'
 
 interface Props {
   onVideoSelect: (video: VideoFile) => void
+  onVideoDeselect?: () => void
   selectedVideo: VideoFile | null
+  collapsed?: boolean
+  onToggleCollapse?: () => void
+  style?: React.CSSProperties
 }
 
-export default function ExplorerPanel({ onVideoSelect, selectedVideo }: Props) {
+export default function ExplorerPanel({ onVideoSelect, onVideoDeselect, selectedVideo, collapsed, onToggleCollapse, style }: Props) {
   const [folderPath, setFolderPath] = useState<string>(() => loadState('folderPath', ''))
   const [videos, setVideos] = useState<VideoFile[]>([])
   const [loading, setLoading] = useState(false)
@@ -124,13 +128,23 @@ export default function ExplorerPanel({ onVideoSelect, selectedVideo }: Props) {
   const handleDelete = useCallback(async (video: VideoFile, e: React.MouseEvent) => {
     e.stopPropagation()
     if (!window.confirm(`"${video.name}"을(를) 휴지통으로 이동하시겠습니까?`)) return
+
+    // If the target file is currently loaded in the video player, deselect it first.
+    // This unmounts the <video> element so the OS file handle is released before
+    // shell.trashItem() is called (Windows rejects moves on open file handles).
+    if (selectedVideo?.path === video.path) {
+      onVideoDeselect?.()
+      // Wait two animation frames + a safety margin for the DOM to settle
+      await new Promise<void>(resolve => setTimeout(resolve, 300))
+    }
+
     try {
       await deleteFile(video.path)
       setVideos(prev => prev.filter(v => v.path !== video.path))
     } catch (err) {
       alert(`삭제 실패: ${String(err)}`)
     }
-  }, [])
+  }, [selectedVideo, onVideoDeselect])
 
   const sorted = [...videos].sort((a, b) => {
     let cmp = 0
@@ -154,16 +168,37 @@ export default function ExplorerPanel({ onVideoSelect, selectedVideo }: Props) {
     return <span className="sort-icon active">{sortOrder === 'asc' ? '↑' : '↓'}</span>
   }
 
+  if (collapsed) {
+    return (
+      <aside className="explorer-panel explorer-panel--collapsed" style={style}>
+        <button className="collapse-toggle" onClick={onToggleCollapse} title="Explorer 펼치기">
+          {/* chevron right */}
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+            <path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </button>
+      </aside>
+    )
+  }
+
   return (
-    <aside className="explorer-panel">
+    <aside className="explorer-panel" style={style}>
       <div className="explorer-header">
         <span className="panel-title">Explorer</span>
-        <button className="folder-btn" onClick={handleSelectFolder} title="폴더 선택">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-            <path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round"/>
-          </svg>
-          폴더 선택
-        </button>
+        <div className="header-actions">
+          <button className="folder-btn" onClick={handleSelectFolder} title="폴더 선택">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round"/>
+            </svg>
+            폴더 선택
+          </button>
+          <button className="collapse-toggle" onClick={onToggleCollapse} title="접기">
+            {/* chevron left */}
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+              <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+        </div>
       </div>
 
       {folderPath && (

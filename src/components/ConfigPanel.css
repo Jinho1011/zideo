@@ -1,7 +1,4 @@
 .config-panel {
-  width: 260px;
-  min-width: 220px;
-  max-width: 320px;
   display: flex;
   flex-direction: column;
   background: var(--bg-panel-2);
@@ -10,11 +7,46 @@
   flex-shrink: 0;
 }
 
+.config-panel--collapsed {
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 8px;
+}
+
 .config-header {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   padding: 12px 14px 10px;
   border-bottom: 1px solid var(--border);
+  gap: 8px;
+}
+
+/* Collapse toggle button */
+.config-panel .collapse-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--text-muted);
+  border: none;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.config-panel .collapse-toggle:hover {
+  background: var(--bg-card);
+  color: var(--text-primary);
+}
+
+.config-panel--collapsed .collapse-toggle {
+  width: 28px;
+  height: 28px;
 }
 
 .config-body {

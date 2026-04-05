@@ -472,5 +472,21 @@ ipcMain.handle('file:rename', async (_event, oldPath: string, newName: string) =
 
 // ─── IPC: Delete file (to trash) ───────────────────────────────────────────
 ipcMain.handle('file:delete', async (_event, filePath: string) => {
-  await shell.trashItem(filePath)
+  // shell.trashItem can fail with "Operation was aborted" when the file is
+  // still held open by the renderer's <video> element. Retry with backoff
+  // to give the renderer time to release the handle.
+  const delays = [0, 400, 800]
+  let lastErr: unknown
+  for (const delay of delays) {
+    if (delay > 0) await new Promise(r => setTimeout(r, delay))
+    try {
+      await shell.trashItem(filePath)
+      return
+    } catch (err) {
+      lastErr = err
+      const msg = String((err as Error).message ?? err)
+      if (!msg.includes('aborted') && !msg.includes('EBUSY')) throw err
+    }
+  }
+  throw lastErr
 })

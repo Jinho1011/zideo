@@ -39,3 +39,33 @@
   flex: 1;
   overflow: hidden;
 }
+
+/* ── Resize handle ───────────────────────────────────────────────────────── */
+.resize-handle {
+  width: 6px;
+  flex-shrink: 0;
+  cursor: col-resize;
+  background: transparent;
+  position: relative;
+  transition: background 0.15s;
+  z-index: 10;
+}
+
+.resize-handle::after {
+  content: '';
+  position: absolute;
+  inset: 0 2px;
+  border-radius: 2px;
+  background: transparent;
+  transition: background 0.15s;
+}
+
+.resize-handle:hover::after {
+  background: var(--accent);
+  opacity: 0.5;
+}
+
+.resize-handle--disabled {
+  cursor: default;
+  pointer-events: none;
+}

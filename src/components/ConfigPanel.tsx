@@ -12,9 +12,12 @@ interface Props {
   jobs: ExportJob[]
   onRemoveJob: (id: string) => void
   onClearJobs: () => void
+  collapsed?: boolean
+  onToggleCollapse?: () => void
+  style?: React.CSSProperties
 }
 
-export default function ConfigPanel({ video, cutRange, config, onConfigChange, jobs, onRemoveJob, onClearJobs }: Props) {
+export default function ConfigPanel({ video, cutRange, config, onConfigChange, jobs, onRemoveJob, onClearJobs, collapsed, onToggleCollapse, style }: Props) {
   const update = useCallback((patch: Partial<ExportConfig>) => {
     onConfigChange({ ...config, ...patch })
   }, [config, onConfigChange])
@@ -35,10 +38,29 @@ export default function ConfigPanel({ video, cutRange, config, onConfigChange, j
   const completedJobs = jobs.filter(j => j.status === 'done' || j.status === 'error')
   const activeJobs = jobs.filter(j => j.status === 'queued' || j.status === 'running')
 
+  if (collapsed) {
+    return (
+      <aside className="config-panel config-panel--collapsed" style={style}>
+        <button className="collapse-toggle" onClick={onToggleCollapse} title="Config 펼치기">
+          {/* chevron left */}
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+            <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </button>
+      </aside>
+    )
+  }
+
   return (
-    <aside className="config-panel">
+    <aside className="config-panel" style={style}>
       <div className="config-header">
         <span className="panel-title">Config</span>
+        <button className="collapse-toggle" onClick={onToggleCollapse} title="접기">
+          {/* chevron right */}
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+            <path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </button>
       </div>
 
       <div className="config-body">

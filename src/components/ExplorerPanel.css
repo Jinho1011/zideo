@@ -1,7 +1,4 @@
 .explorer-panel {
-  width: 280px;
-  min-width: 220px;
-  max-width: 360px;
   display: flex;
   flex-direction: column;
   background: var(--bg-panel);
@@ -10,12 +7,26 @@
   flex-shrink: 0;
 }
 
+.explorer-panel--collapsed {
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 8px;
+}
+
 .explorer-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 12px 14px 10px;
   border-bottom: 1px solid var(--border);
+  gap: 8px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
 }
 
 .panel-title {
@@ -24,6 +35,33 @@
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.8px;
+}
+
+/* Collapse toggle button (used in header and collapsed strip) */
+.collapse-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--text-muted);
+  border: none;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.collapse-toggle:hover {
+  background: var(--bg-card);
+  color: var(--text-primary);
+}
+
+.explorer-panel--collapsed .collapse-toggle {
+  width: 28px;
+  height: 28px;
 }
 
 .folder-btn {
