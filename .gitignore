@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+dist-electron/
+
+# Vite cache
+.vite/
+
+# Electron builder output
+release/
+build/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Editor directories
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+npm-debug.log*
+
+# TypeScript incremental compilation
+*.tsbuildinfo
+
+# Temporary files
+*.tmp
+*.temp
+
+# Debug session logs
+debug-*.log
